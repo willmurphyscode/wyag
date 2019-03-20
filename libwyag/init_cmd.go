@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/google/subcommands"
 )
@@ -17,19 +18,25 @@ type InitCmd struct {
 func (*InitCmd) Name() string     { return "init" }
 func (*InitCmd) Synopsis() string { return "Initialize and empty git repository" }
 func (*InitCmd) Usage() string {
-	return `init [-path PATH=PWD]:
+	return `init [PATH=PWD]:
 Initialize an empty git repository at PATH
 `
 }
 
 func (i *InitCmd) SetFlags(f *flag.FlagSet) {
-	// f.BoolVar(&p.capitalize, "capitalize", false, "capitalize output")
-	pwd, err := os.Getwd()
-	orDie(err)
-	f.StringVar(&i.path, "path", pwd, "Path where the repository should be initialized")
 }
 
 func (i *InitCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+
+	pwd, err := os.Getwd()
+	orDie(err)
+	args := f.Args()
+	if len(args) == 0 {
+		i.path = pwd
+	} else {
+		i.path = filepath.Join(pwd, args[0])
+
+	}
 	fmt.Println(i.path)
 	fmt.Println()
 	return subcommands.ExitSuccess
